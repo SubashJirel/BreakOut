@@ -5,7 +5,7 @@ let boardHeight = 500;
 let context;
 
 //players
-let playerWidth = 400; //500 for testing, 80 normal
+let playerWidth = 80; //500 for testing, 80 normal
 let playerHeight = 10;
 let playerVelocityX = 10; //move 10 pixels each time
 
@@ -20,8 +20,8 @@ let player = {
 //ball
 let ballWidth = 10;
 let ballHeight = 10;
-let ballVelocityX = 15;
-let ballVelocityY = 10;
+let ballVelocityX = 3;
+let ballVelocityY = 2;
 
 let ball = {
   x: boardWidth / 2,
@@ -121,6 +121,13 @@ function update() {
       }
       context.fillRect(block.x, block.y, block.width, block.height);
     }
+  }
+
+  //next level
+  if (blockCount == 0) {
+    score += 100 * blockRows * blockColumns; //bonus points :)
+    blockRows = Math.min(blockRows + 1, blockMaxRows);
+    createBlocks();
   }
   //score
   context.font = '20px sans-serif';
