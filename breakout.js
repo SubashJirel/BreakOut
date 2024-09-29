@@ -5,7 +5,7 @@ let boardHeight = 500;
 let context;
 
 //players
-let playerWidth = 500; //500 for testing, 80 normal
+let playerWidth = 400; //500 for testing, 80 normal
 let playerHeight = 10;
 let playerVelocityX = 10; //move 10 pixels each time
 
@@ -67,6 +67,10 @@ window.onload = function () {
 
 function update() {
   requestAnimationFrame(update);
+  //stop drawing
+  if (gameOver) {
+    return;
+  }
   context.clearRect(0, 0, board.width, board.height);
 
   // player
@@ -94,7 +98,9 @@ function update() {
     ball.velocityX *= -1; //reverse direction
   } else if (ball.y + ball.height >= boardHeight) {
     // if ball touches bottom of canvas
-    //game over
+    context.font = '20px sans-serif';
+    context.fillText("Game Over: Press 'Space' to Restart", 80, 400);
+    gameOver = true;
   }
 
   //blocks
@@ -116,6 +122,9 @@ function update() {
       context.fillRect(block.x, block.y, block.width, block.height);
     }
   }
+  //score
+  context.font = '20px sans-serif';
+  context.fillText(score, 10, 25);
 }
 
 function outOfBounds(xPosition) {
@@ -123,6 +132,13 @@ function outOfBounds(xPosition) {
 }
 
 function movePlayer(e) {
+  if (gameOver) {
+    if (e.code == 'Space') {
+      resetGame();
+      console.log('RESET');
+    }
+    return;
+  }
   if (e.code == 'ArrowLeft') {
     // player.x -= player.velocityX;
     let nextplayerX = player.x - player.velocityX;
@@ -181,4 +197,27 @@ function createBlocks() {
     }
   }
   blockCount = blockArray.length;
+}
+
+function resetGame() {
+  gameOver = false;
+  player = {
+    x: boardWidth / 2 - playerWidth / 2,
+    y: boardHeight - playerHeight - 5,
+    width: playerWidth,
+    height: playerHeight,
+    velocityX: playerVelocityX,
+  };
+  ball = {
+    x: boardWidth / 2,
+    y: boardHeight / 2,
+    width: ballWidth,
+    height: ballHeight,
+    velocityX: ballVelocityX,
+    velocityY: ballVelocityY,
+  };
+  blockArray = [];
+  blockRows = 3;
+  score = 0;
+  createBlocks();
 }
