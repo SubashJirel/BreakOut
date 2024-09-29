@@ -5,7 +5,7 @@ let boardHeight = 500;
 let context;
 
 //players
-let playerWidth = 80; //500 for testing, 80 normal
+let playerWidth = 500; //500 for testing, 80 normal
 let playerHeight = 10;
 let playerVelocityX = 10; //move 10 pixels each time
 
@@ -20,8 +20,8 @@ let player = {
 //ball
 let ballWidth = 10;
 let ballHeight = 10;
-let ballVelocityX = 3;
-let ballVelocityY = 2;
+let ballVelocityX = 15;
+let ballVelocityY = 10;
 
 let ball = {
   x: boardWidth / 2,
@@ -31,6 +31,22 @@ let ball = {
   velocityX: ballVelocityX,
   velocityY: ballVelocityY,
 };
+
+//blocks
+let blockArray = [];
+let blockWidth = 50;
+let blockHeight = 10;
+let blockColumns = 8;
+let blockRows = 3; //add more as game goes on
+let blockMaxRows = 10; //limit how many rows
+let blockCount = 0;
+
+//starting block corners top left
+let blockX = 15;
+let blockY = 45;
+
+let score = 0;
+let gameOver = false;
 
 window.onload = function () {
   board = document.getElementById('board');
@@ -44,6 +60,9 @@ window.onload = function () {
 
   requestAnimationFrame(update);
   document.addEventListener('keydown', movePlayer);
+
+  //create blocks
+  createBlocks();
 };
 
 function update() {
@@ -76,6 +95,26 @@ function update() {
   } else if (ball.y + ball.height >= boardHeight) {
     // if ball touches bottom of canvas
     //game over
+  }
+
+  //blocks
+  context.fillStyle = 'skyblue';
+  for (let i = 0; i < blockArray.length; i++) {
+    let block = blockArray[i];
+    if (!block.break) {
+      if (topCollision(ball, block) || bottomCollision(ball, block)) {
+        block.break = true; // block is broken
+        ball.velocityY *= -1; // flip y direction up or down
+        score += 100;
+        blockCount -= 1;
+      } else if (leftCollision(ball, block) || rightCollision(ball, block)) {
+        block.break = true; // block is broken
+        ball.velocityX *= -1; // flip x direction left or right
+        score += 100;
+        blockCount -= 1;
+      }
+      context.fillRect(block.x, block.y, block.width, block.height);
+    }
   }
 }
 
@@ -125,4 +164,21 @@ function leftCollision(ball, block) {
 function rightCollision(ball, block) {
   //a is right of b (ball is right of block)
   return detectCollision(ball, block) && block.x + block.width >= ball.x;
+}
+
+function createBlocks() {
+  blockArray = []; //clear blockArray
+  for (let c = 0; c < blockColumns; c++) {
+    for (let r = 0; r < blockRows; r++) {
+      let block = {
+        x: blockX + c * blockWidth + c * 10, //c*10 space 10 pixels apart columns
+        y: blockY + r * blockHeight + r * 10, //r*10 space 10 pixels apart rows
+        width: blockWidth,
+        height: blockHeight,
+        break: false,
+      };
+      blockArray.push(block);
+    }
+  }
+  blockCount = blockArray.length;
 }
